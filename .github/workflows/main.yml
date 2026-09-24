@@ -1,9 +1,9 @@
 name: Main
 
 on:
-  - schedule:
-      cron: "0 8 * * *"
-  - workflow_dispatch
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
 
 jobs:
   main:
@@ -26,12 +26,11 @@ jobs:
           path: ${{ env.pythonLocation }}
           key: ${{ runner.os }}-os:ubuntu-24.04-python:3.14-${{ env.pythonLocation }}
 
-      - name: Import SSH Key
-        shell: bash
-        run: |
-          eval $(ssh-agent -s)
-          ssh-add - <<< '${{ secrets.DEPLOY_SSH_KEY }}'
-
       - name: Run
         shell: bash
-        run: ./scripts/crawl_upload.sh
+        env:
+          SCRATCHERS_PAT: '${{ secrets.SCRATCHERS_PAT }}'
+        run: |
+          eval $(ssh-agent -s)
+          ssh-add - <<< '${{ secrets.SCRATCHERS_SSH_KEY }}'
+          ./scripts/crawl_upload.sh
